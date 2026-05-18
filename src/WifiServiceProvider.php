@@ -3,6 +3,7 @@
 namespace Nawasara\Wifi;
 
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
@@ -27,6 +28,44 @@ class WifiServiceProvider extends ServiceProvider
         }
 
         $this->registerLivewire();
+        $this->registerApiScopes();
+        $this->registerApiRoutes();
+    }
+
+    /**
+     * Mount route API ke prefix /api/v1/wifi. Cuma jalan kalau nawasara/api
+     * terpasang.
+     */
+    public function registerApiRoutes(): void
+    {
+        if (! class_exists(\Nawasara\Api\ApiServiceProvider::class)) {
+            return;
+        }
+
+        $prefix = (string) config('nawasara-api.route.prefix', 'api/v1').'/wifi';
+
+        Route::prefix($prefix)
+            ->middleware(['api', 'api.auth', 'api.log'])
+            ->name('nawasara-api.wifi.')
+            ->group(__DIR__.'/../routes/api.php');
+    }
+
+    /**
+     * Register API scope ke nawasara/api scope registry. Guard `class_exists`
+     * supaya package tetap jalan kalau nawasara/api tidak ter-install.
+     */
+    public function registerApiScopes(): void
+    {
+        if (! class_exists(\Nawasara\Api\Support\ScopeRegistry::class)) {
+            return;
+        }
+
+        $registry = $this->app->make(\Nawasara\Api\Support\ScopeRegistry::class);
+
+        $registry->register(
+            'wifi.point.read',
+            'List + detail titik WiFi publik (nama, lokasi, koordinat, status). Untuk plot di peta aplikasi lain.',
+        );
     }
 
     public function registerLivewire(): void
