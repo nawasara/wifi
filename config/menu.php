@@ -6,6 +6,7 @@ return [
     [
         'label' => 'WiFi Publik',
         'icon' => 'lucide-wifi',
+        'group' => 'Layanan',
         'url' => '',
         'permission' => 'wifi.point.view',
         'submenu' => [
