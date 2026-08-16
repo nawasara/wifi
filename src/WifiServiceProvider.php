@@ -48,6 +48,12 @@ class WifiServiceProvider extends ServiceProvider
             ->middleware(['api', 'api.auth', 'api.log'])
             ->name('nawasara-api.wifi.')
             ->group(__DIR__.'/../routes/api.php');
+
+        // Rute aplikasi warga — JWT realm warga, bukan token sistem.
+        Route::prefix((string) config('nawasara-api.route.prefix', 'api/v1').'/citizen/wifi')
+            ->middleware(['api', 'api.citizen', 'throttle:nawasara-citizen'])
+            ->name('nawasara-api.citizen.wifi.')
+            ->group(__DIR__.'/../routes/citizen.php');
     }
 
     /**
