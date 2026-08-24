@@ -39,7 +39,26 @@ class CitizenPointController extends Controller
 
         return response()->json([
             'data' => CitizenWifiPointResource::collection($points)->resolve(),
-            'meta' => ['total' => $points->count()],
+
+            // Ringkasan dihitung SERVER, bukan aplikasi.
+            //
+            // Aplikasi bisa saja menghitungnya sendiri dari daftar, tetapi
+            // angka yang dihitung dua tempat berbeda akan berbeda suatu hari
+            // — dan yang salah adalah yang dilihat warga. Menghitung di sini
+            // juga berarti angkanya tetap benar bila kelak daftarnya
+            // dipaginasi.
+            'meta' => [
+                'total' => $points->count(),
+                'online' => $points->where('status', WifiPoint::STATUS_CONNECTED)->count(),
+
+                // Berapa kecamatan tercakup. Dihitung dari `location` yang
+                // BOLEH kosong — titik tanpa lokasi tidak ikut dihitung,
+                // bukan dihitung sebagai kecamatan tanpa nama.
+                'districts' => $points->pluck('location')
+                    ->filter(fn ($v) => is_string($v) && trim($v) !== '')
+                    ->unique()
+                    ->count(),
+            ],
         ]);
     }
 
