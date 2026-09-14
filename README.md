@@ -1,24 +1,19 @@
 # nawasara/wifi
 
-Monitoring titik WiFi publik untuk framework superapp Nawasara. Registry
-hotspot dengan koordinat lokasi dan status koneksi — disiapkan untuk
-ditampilkan di peta bersama titik CCTV (`nawasara/cctv`).
+Public WiFi point monitoring for the Nawasara superapp framework. It is a hotspot registry with location coordinates and connection status, meant to be shown on a map alongside CCTV points (`nawasara/cctv`).
 
 ## Status v0.1.0
 
-| Fitur | Status |
+| Feature | Status |
 |---|---|
-| Registry titik WiFi + CRUD | ✅ siap |
-| Koordinat (latitude/longitude) per titik | ✅ siap |
-| Status koneksi (terhubung / tidak terhubung) — **manual** | ✅ siap |
-| Toggle status cepat dari tabel | ✅ siap |
-| Auto-probe status (ping/HTTP) | ⏳ menyusul |
-| Map view (gabung dengan CCTV) | ⏳ menyusul — dikerjakan terpisah |
+| WiFi point registry plus CRUD | ready |
+| Coordinates (latitude/longitude) per point | ready |
+| Connection status (connected / disconnected), **manual** | ready |
+| Quick status toggle from the table | ready |
+| Automatic status probe (ping/HTTP) | not built yet |
+| Map view (combined with CCTV) | not built yet, handled separately |
 
-Status koneksi di v0.1.0 di-set **manual** lewat CRUD (admin toggle).
-Belum ada probe otomatis — itu butuh kolom IP/host + logika probe, bisa
-ditambah nanti tanpa migrasi besar (struktur `status` + `status_changed_at`
-sudah disiapkan untuk itu).
+Connection status in v0.1.0 is set **manually** through CRUD (an admin toggle). There is no automatic probe yet. That would need an IP/host column plus probe logic, which can be added later without a large migration (the `status` and `status_changed_at` structure is already in place for it).
 
 ## Setup
 
@@ -30,25 +25,21 @@ php artisan db:seed --class="Nawasara\\Wifi\\Database\\Seeders\\PermissionSeeder
 ## Model
 
 `WifiPoint` (`nawasara_wifi_points`):
-- `name`, `location` — identitas titik
-- `latitude`, `longitude` — koordinat, `decimal(10,7)`, nullable. Hanya
-  titik dengan koordinat lengkap yang di-plot di peta (scope `mappable()`).
-- `status` — `connected` | `disconnected`. Ubah lewat `setStatus()` supaya
-  `status_changed_at` konsisten ter-stempel.
-- `is_active` — admin enable/disable.
+- `name`, `location`: point identity
+- `latitude`, `longitude`: coordinates, `decimal(10,7)`, nullable. Only points with complete coordinates are plotted on the map (the `mappable()` scope).
+- `status`: `connected` or `disconnected`. Change it through `setStatus()` so `status_changed_at` is stamped consistently.
+- `is_active`: admin enable/disable.
 
 ## Permissions
 
-| Permission | Untuk |
+| Permission | For |
 |---|---|
-| `wifi.point.view` | Lihat daftar titik WiFi |
-| `wifi.point.create` | Tambah titik |
-| `wifi.point.update` | Edit titik + toggle status |
-| `wifi.point.delete` | Hapus titik |
+| `wifi.point.view` | View the WiFi point list |
+| `wifi.point.create` | Add a point |
+| `wifi.point.update` | Edit a point and toggle status |
+| `wifi.point.delete` | Delete a point |
 
 ## Roadmap
 
-- **Auto-probe**: tambah kolom `ip_address`/`host` + command `wifi:probe`
-  (pola seperti `cctv:probe`) untuk update status otomatis.
-- **Map view**: halaman peta interaktif yang plot marker WiFi + CCTV
-  (`nawasara/cctv` juga sudah punya koordinat) di satu peta.
+- **Auto-probe**: add an `ip_address`/`host` column plus a `wifi:probe` command (following the `cctv:probe` pattern) to update status automatically.
+- **Map view**: an interactive map page that plots WiFi and CCTV markers (`nawasara/cctv` also already has coordinates) on a single map.
