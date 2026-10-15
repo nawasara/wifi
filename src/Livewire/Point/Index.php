@@ -4,9 +4,12 @@ namespace Nawasara\Wifi\Livewire\Point;
 
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Nawasara\AuthPrimitives\Attributes\RequiresSudo;
+use Nawasara\AuthPrimitives\Traits\WithSudo;
 use Nawasara\Wifi\Models\WifiPoint;
 
 /**
@@ -18,6 +21,7 @@ use Nawasara\Wifi\Models\WifiPoint;
 class Index extends Component
 {
     use WithPagination;
+    use WithSudo;
 
     #[Url(except: '')]
     public string $search = '';
@@ -28,6 +32,9 @@ class Index extends Component
 
     // -- Form modal state ------------------------------------------------------
     public bool $showForm = false;
+    // Audit keamanan 15 Oktober 2026: hanya diisi server (openEdit), dikunci
+    // supaya payload wire tidak dapat mengalihkan simpan ke titik lain.
+    #[Locked]
     public ?int $editingId = null;
 
     public string $name = '';
@@ -176,6 +183,8 @@ class Index extends Component
         $this->dispatch('toast', type: 'success', message: 'Status diperbarui.');
     }
 
+    // Audit keamanan 15 Oktober 2026 (S6): wajib sudo (AGENTS.md §6).
+    #[RequiresSudo(reason: 'menghapus titik WiFi')]
     public function delete(int $id): void
     {
         Gate::authorize('wifi.point.delete');
